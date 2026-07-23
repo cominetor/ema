@@ -15,7 +15,7 @@ const SEED_CONSOLES = [
   },
   {
     name: "SNES",
-    color: "#7A5CC6",
+    color: "#C0405E",
     games: [
       "Super Mario World", "The Legend of Zelda: A Link to the Past",
       "Super Metroid", "Chrono Trigger", "Donkey Kong Country",
@@ -34,7 +34,7 @@ const SEED_CONSOLES = [
   },
   {
     name: "GameCube",
-    color: "#5B6FD6",
+    color: "#4C74C4",
     games: [
       "The Legend of Zelda: Wind Waker", "Metroid Prime",
       "Super Mario Sunshine", "Resident Evil 4", "Pikmin",
@@ -44,7 +44,7 @@ const SEED_CONSOLES = [
   },
   {
     name: "Wii",
-    color: "#37B6D9",
+    color: "#37A6C4",
     games: [
       "Super Mario Galaxy", "The Legend of Zelda: Twilight Princess",
       "Super Smash Bros. Brawl", "Xenoblade Chronicles", "Metroid Prime 3",
@@ -85,7 +85,7 @@ const SEED_CONSOLES = [
   },
   {
     name: "DS / 3DS",
-    color: "#C0398B",
+    color: "#D14E93",
     games: [
       "The Legend of Zelda: Phantom Hourglass", "Pokémon Nero/Bianco",
       "Super Mario 64 DS", "Animal Crossing: Wild World",
@@ -96,7 +96,7 @@ const SEED_CONSOLES = [
   },
   {
     name: "PS1",
-    color: "#556C99",
+    color: "#5B708F",
     games: [
       "Final Fantasy VII", "Metal Gear Solid", "Resident Evil 2",
       "Castlevania: Symphony of the Night", "Silent Hill", "Crash Bandicoot",
@@ -114,7 +114,7 @@ const SEED_CONSOLES = [
   },
   {
     name: "PSP",
-    color: "#3D5A80",
+    color: "#3D6E8E",
     games: [
       "God of War: Chains of Olympus", "Crisis Core: Final Fantasy VII",
       "Persona 3 Portable", "Patapon", "LocoRoco",
@@ -142,7 +142,7 @@ const SEED_CONSOLES = [
   },
   {
     name: "Saturn",
-    color: "#6D4C9F",
+    color: "#8E3350",
     games: [
       "Nights into Dreams", "Panzer Dragoon Saga", "Guardian Heroes",
       "Radiant Silvergun", "Shining Force III", "Fighters Megamix",

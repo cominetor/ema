@@ -22,6 +22,19 @@
     if (!localStorage.getItem(STORE_KEY)) save();
   } catch (e) { /* storage unavailable — app still works in-memory */ }
 
+  // Keep signature colours in step with the current design for the built-in
+  // consoles (matched by name), without touching the user's owned/wishlist
+  // choices. There is no colour-editing UI, so this only ever corrects them.
+  (function syncSeedColors() {
+    const seedColor = new Map(SEED_CONSOLES.map((c) => [c.name, c.color]));
+    let changed = false;
+    data.consoles.forEach((c) => {
+      const sc = seedColor.get(c.name);
+      if (sc && c.color !== sc) { c.color = sc; changed = true; }
+    });
+    if (changed) save();
+  })();
+
   function uid() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
@@ -64,6 +77,24 @@
     { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
   ));
 
+  // Pick legible text (dark vs white) for a coloured label, so console
+  // labels stay readable on any colour — including ones the user adds.
+  function inkOn(color) {
+    let r, g, b;
+    if (color[0] === "#") {
+      let h = color.slice(1);
+      if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+      r = parseInt(h.slice(0, 2), 16);
+      g = parseInt(h.slice(2, 4), 16);
+      b = parseInt(h.slice(4, 6), 16);
+    } else {
+      const m = color.match(/hsl\(\s*[\d.]+\D+[\d.]+%\D+([\d.]+)%/i);
+      return m && parseFloat(m[1]) > 62 ? "#1a1d24" : "#ffffff";
+    }
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+    return yiq > 155 ? "#1a1d24" : "#ffffff";
+  }
+
   const view = $("#view");
   const backBtn = $("#backBtn");
   const topActions = $("#topActions");
@@ -98,7 +129,7 @@
     }
     // missing — hollow, ghosted
     return '<span class="status" aria-hidden="true"><svg viewBox="0 0 30 30">'
-      + '<circle cx="15" cy="15" r="12" fill="rgba(255,255,255,.03)" '
+      + '<circle cx="15" cy="15" r="12" fill="rgba(35,38,46,.03)" '
       + 'stroke="var(--ink-dim)" stroke-width="2.2"/></svg></span>';
   }
 
@@ -109,7 +140,7 @@
     const frac = total ? owned / total : 0;
     const offset = C * (1 - frac);
     const core = complete
-      ? `<span class="dot">${ICON.check}</span>`
+      ? `<span class="dot" style="color:${inkOn(color)}">${ICON.check}</span>`
       : '<span class="dot"></span>';
     return `<div class="ring">
       <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
@@ -178,7 +209,7 @@
         : (complete ? '<span class="cart-sub">completa</span>' : "");
       const card = el(`<button class="cart${complete ? " complete" : ""}${s.total === 0 ? " empty-console" : ""}"
         style="--c:${c.color}" aria-label="${esc(c.name)} — ${s.owned} di ${s.total} posseduti, ${s.wish} in wishlist. Apri la lista.">
-        <div class="cart-label" style="background:${c.color}">
+        <div class="cart-label" style="background:${c.color};color:${inkOn(c.color)}">
           <span class="cart-name">${esc(c.name)}</span>
           ${sub}
         </div>

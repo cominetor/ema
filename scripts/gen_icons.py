@@ -11,13 +11,13 @@ import zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(os.path.dirname(HERE), "icons")
 
-# Palette
-BG = (23, 19, 52)          # deep indigo shelf
-CART = (255, 84, 112)      # coral cartridge body
-CART_DK = (214, 58, 88)    # cartridge shadow
-LABEL = (45, 226, 230)     # cyan label
-LABEL_DK = (23, 170, 176)  # label edge
-CREAM = (247, 240, 224)    # highlight
+# Palette — light "clean arcade"
+BG = (243, 243, 239)       # soft paper field
+CART = (239, 83, 80)       # coral cartridge body
+CART_DK = (208, 64, 62)    # cartridge shadow
+LABEL = (23, 162, 166)     # teal label
+LABEL_DK = (18, 130, 133)  # label edge
+CREAM = (247, 244, 236)    # highlight stripe
 
 
 def blend(dst, src, a):
