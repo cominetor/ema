@@ -1,7 +1,14 @@
-/* RetroScaffale service worker — offline-first app shell.
- * Bump CACHE when any shell file changes so clients update.
+/* RetroScaffale service worker.
+ *
+ * Strategy:
+ *  - HTML / JS / CSS  -> network-first (always get the latest code when online,
+ *    fall back to cache when offline). This prevents a stale script from being
+ *    served next to a fresh page, which would break newly added UI.
+ *  - icons / manifest -> cache-first (rarely change, fast + offline).
+ *
+ * Bump CACHE whenever the shell changes so old caches are cleared on activate.
  */
-const CACHE = "retroscaffale-v1";
+const CACHE = "retroscaffale-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -29,25 +36,39 @@ self.addEventListener("activate", (e) => {
   );
 });
 
+function putInCache(req, res) {
+  if (res && res.ok && res.type === "basic") {
+    const copy = res.clone();
+    caches.open(CACHE).then((c) => c.put(req, copy));
+  }
+  return res;
+}
+
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // App shell: cache-first, then network (and refresh cache in background).
+  const isDoc = req.mode === "navigate";
+  const isCode = /\.(?:js|css)$/.test(url.pathname);
+
+  if (isDoc || isCode) {
+    // network-first, cache fallback (offline)
+    e.respondWith(
+      fetch(req)
+        .then((res) => putInCache(req, res))
+        .catch(() => caches.match(req).then(
+          (cached) => cached || (isDoc ? caches.match("./index.html") : undefined)
+        ))
+    );
+    return;
+  }
+
+  // cache-first for images / manifest / everything else
   e.respondWith(
-    caches.match(req).then((cached) => {
-      const network = fetch(req)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => cached || caches.match("./index.html"));
-      return cached || network;
-    })
+    caches.match(req).then((cached) =>
+      cached || fetch(req).then((res) => putInCache(req, res))
+    )
   );
 });

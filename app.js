@@ -487,6 +487,16 @@
 
   // ---- PWA: service worker ----------------------------------------------
   if ("serviceWorker" in navigator) {
+    // When a new service worker takes control (an update shipped), reload once
+    // so the page runs the fresh code. Guarded so first install and repeated
+    // events never cause a reload loop.
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloaded || !hadController) return;
+      reloaded = true;
+      window.location.reload();
+    });
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("sw.js").catch(() => { /* offline still ok on 2nd load */ });
     });
