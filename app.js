@@ -129,7 +129,7 @@
     }
     // missing — hollow, ghosted
     return '<span class="status" aria-hidden="true"><svg viewBox="0 0 30 30">'
-      + '<circle cx="15" cy="15" r="12" fill="rgba(35,38,46,.03)" '
+      + '<circle cx="15" cy="15" r="12" fill="rgba(127,127,127,.10)" '
       + 'stroke="var(--ink-dim)" stroke-width="2.2"/></svg></span>';
   }
 
@@ -421,6 +421,51 @@
     t.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+  }
+
+  // ---- Theme (light / dark) ---------------------------------------------
+  const THEME_KEY = "retroscaffale.theme";
+  const themeBtn = $("#themeBtn");
+  const ICON_SUN = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/>'
+    + '<path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2'
+    + 'M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  const ICON_MOON = '<svg viewBox="0 0 24 24">'
+    + '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+
+  function storedTheme() {
+    try { return localStorage.getItem(THEME_KEY); } catch (e) { return null; }
+  }
+  function systemPrefersDark() {
+    return window.matchMedia
+      && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function applyTheme(mode) {
+    document.documentElement.dataset.theme = mode;
+    const dark = mode === "dark";
+    // button shows the action it performs (moon = go dark, sun = go light)
+    themeBtn.innerHTML = dark ? ICON_SUN : ICON_MOON;
+    themeBtn.setAttribute("aria-pressed", String(dark));
+    themeBtn.setAttribute("aria-label",
+      dark ? "Passa al tema chiaro" : "Passa al tema scuro");
+    themeBtn.title = dark ? "Tema chiaro" : "Tema scuro";
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", dark ? "#16181d" : "#f3f3ef");
+  }
+
+  // initial theme: saved choice wins, otherwise follow the OS preference
+  applyTheme(storedTheme() || (systemPrefersDark() ? "dark" : "light"));
+
+  themeBtn.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+  });
+
+  // if the user hasn't chosen explicitly, react to OS theme changes live
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+      if (!storedTheme()) applyTheme(e.matches ? "dark" : "light");
+    });
   }
 
   // ---- PWA: install prompt ----------------------------------------------
